@@ -1,7 +1,7 @@
 Finance Dashboard Backend
 
 Architecture & Technology Stack
-The backend will be built with Node.js, Express, and TypeScript for robust typing and maintainability.
+The backend is built with Node.js, Express, and TypeScript for robust typing and maintainability.
 
 Database: SQLite via Prisma ORM (ensuring relational modeling, data consistency, and simplified migrations).
 Validation: Zod for schema-based input validation.

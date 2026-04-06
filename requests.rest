@@ -1,0 +1,96 @@
+@baseUrl = http://localhost:3000
+@password = securepass123
+
+### ==========================================
+### 1. Health Check
+### ==========================================
+GET {{baseUrl}}/health
+
+### ==========================================
+### 2. ADMIN FLOW (Full Access)
+### ==========================================
+
+# @name adminLogin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "admin@finance.app",
+    "password": "{{password}}"
+}
+
+### (The line below automatically grabs the token from the response above!)
+@adminToken = {{adminLogin.response.body.$.token}}
+
+### Create a Record (Admin Only)
+POST {{baseUrl}}/api/records
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "amount": 2500.50,
+    "type": "INCOME",
+    "category": "Salary",
+    "date": "2026-04-01T00:00:00Z",
+    "description": "April Salary"
+}
+
+### View All Users (Admin Only)
+GET {{baseUrl}}/api/users
+Authorization: Bearer {{adminToken}}
+
+
+### ==========================================
+### 3. ANALYST FLOW (Read + Dashboard)
+### ==========================================
+
+# @name analystLogin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "analyst@finance.app",
+    "password": "{{password}}"
+}
+
+@analystToken = {{analystLogin.response.body.$.token}}
+
+### View Dashboard Summary (Analyst & Admin)
+GET {{baseUrl}}/api/dashboard/summary
+Authorization: Bearer {{analystToken}}
+
+
+### ==========================================
+### 4. VIEWER FLOW (Read-Only)
+### ==========================================
+
+# @name viewerLogin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "viewer@finance.app",
+    "password": "{{password}}"
+}
+
+@viewerToken = {{viewerLogin.response.body.$.token}}
+
+### View All Records (Anyone)
+GET {{baseUrl}}/api/records
+Authorization: Bearer {{viewerToken}}
+
+### Attempt Dashboard (Should Fail with 403 Forbidden)
+GET {{baseUrl}}/api/dashboard/summary
+Authorization: Bearer {{viewerToken}}
+
+### Attempt Create Record (Should Fail with 403 Forbidden)
+POST {{baseUrl}}/api/records
+Content-Type: application/json
+Authorization: Bearer {{viewerToken}}
+
+{
+    "amount": 500,
+    "type": "EXPENSE",
+    "category": "Food",
+    "date": "2026-04-03T00:00:00Z"
+}
